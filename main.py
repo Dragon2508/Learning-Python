@@ -1,5 +1,7 @@
 import math as m 
-import collections as coll
+import collections as coll 
+import tkinter as tk
+import pickle 
 
 def SummBin(a, l):
     num = ''
@@ -11,14 +13,18 @@ def SummBin(a, l):
     return num
 
 class Code:
-    text = ''
     code = ''
+    text = ''
     words = {}
     dewords = {}
 
     # Кодирование
-    def Encoder(self): 
+    def Encoder(self):
+        self.code = '' 
+        self.words = {}
+        self.dewords = {}
         sum = 0.0
+        self.text = Text1.get(1.0, 'end').lower()
         for i in self.text:
             if i not in self.words:
                 self.words[i.lower()] = [1, 0, 0, '']
@@ -28,35 +34,60 @@ class Code:
         for i in self.words:
             self.words[i][0] /=  len(self.text)
             self.words[i][1] = self.words[i][0] / 2 + sum
-            self.words[i][2] = m.ceil(m.log2(1 / self.words[i][0])) + 1 
+            self.words[i][2] = m.ceil(m.log2(1 / self.words[i][0])) + 1 #
             self.words[i][3] = SummBin(self.words[i][1], self.words[i][2])
             sum += self.words[i][0]
         for i in self.text.lower():
             self.code += self.words[i][3]
-        print(self.code)
+
 
     # Декодирование
     def Decoder(self):
-        for k, i in self.words.items():
-            self.dewords[i[3]] = k 
-        w = ''
+        line = ''
+        dewords = {}
+        for k,i in self.words.items():
+            dewords[i[3]] = k
         for i in self.code:
+            line += i
             try:
-                w += i
-                print(self.dewords[w], end='')
-                w = ''
+                dewords[line]
             except:
                 pass
+            else:
+                Text3.insert('end', dewords[line])
+                line = ''
             
 code = Code()
-code.text = input('Input phrase or word: \n')
-print('Encoded information: ')
-code.Encoder()
-print('Decoded information: ')
-code.Decoder()
-mid = 0.0
-H = 0.0
-for i in code.text.lower():
-    s += code.words[i][0] * code.words[i][2]
-    H += code.words[i][0] * m.log2(1 / code.words[i][0])
-print('\nComparison: \n', mid,' < ', H+2)
+
+def encod():
+    Text2.delete(1.0,'end')
+    code.Encoder()
+    Text2.insert(1.0, code.code)
+
+def decod():
+    Text3.delete(1.0,'end')
+    code.Decoder()
+
+form = tk.Tk()
+form.wm_title('Алгоритм Гилберта-Мура')
+form.wm_resizable(width=False, height=False)
+
+label1 = tk.Label(form, text='Введите текст')
+label1.grid(row=0, column=0)
+
+Text1 = tk.Text(form, wrap=tk.WORD, height=10, width=50)
+Text1.grid(row=2, column=0)
+
+Text2 = tk.Text(form, wrap=tk.WORD, height=10, width=50)
+Text2.grid(row=4, column=0)
+
+Text3 = tk.Text(form, wrap=tk.WORD, height=10, width=50)
+Text3.grid(row=6, column=0)
+
+button_cod = tk.Button(form,text = 'Кодировать', height=2, width=15,command = encod)
+button_cod.grid(row=3, column=0, pady=15)
+
+button_decode = tk.Button(form,text = 'Декодировать', height=2, width=15,command = decod)
+button_decode.grid(row=5, column=0, pady=15)
+
+form.mainloop()
